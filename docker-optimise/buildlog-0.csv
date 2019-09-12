@@ -1,0 +1,30 @@
+1567520693;START;12
+1567520705;Step 1/30 : FROM microsoft/dotnet:2.2-aspnetcore-runtime AS base;0
+1567520705;Step 2/30 : ENV TZ Europe/London;0
+1567520705;Step 3/30 : EXPOSE 80;0
+1567520705;Step 4/30 : FROM node:8.11.1 as node;41
+1567520746;Step 5/30 : WORKDIR /app;0
+1567520746;Step 6/30 : COPY ./ /app/;12
+1567520758;Step 7/30 : RUN mkdir -p /root/.ssh;2
+1567520760;Step 8/30 : ADD dockerbuilder /root/.ssh/id_rsa;1
+1567520761;Step 9/30 : RUN chmod 700 /root/.ssh/id_rsa && echo "Host github.com\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config;2
+1567520763;Step 10/30 : RUN npm install;13
+1567520776;Step 11/30 : RUN npm install ~git+ssh://git@github.com:Carfinance247/Carfinance.Tracking.JsLib.git#master;12
+1567520788;Step 12/30 : RUN npm install -g gulp-cli;201
+1567520989;Step 13/30 : RUN npm install gulp;14
+1567521003;Step 14/30 : RUN npm uninstall gulp-imagemin;12
+1567521015;Step 15/30 : RUN npm install gulp-imagemin@3.0.3;21
+1567521036;Step 16/30 : RUN npm rebuild node-sass --force;157
+1567521193;Step 17/30 : RUN ["gulp", "default"];31
+1567521224;Step 18/30 : FROM microsoft/dotnet:2.2-sdk AS build;68
+1567521292;Step 19/30 : WORKDIR /app;0
+1567521292;Step 20/30 : COPY Carfinance.Web.Members.csproj ./;1
+1567521293;Step 21/30 : RUN dotnet restore Carfinance.Web.Members.csproj -s http://nuget.carfinance247.co.uk -s https://api.nuget.org/v3/index.json;112
+1567521405;Step 22/30 : COPY /. ./;14
+1567521419;Step 23/30 : RUN dotnet publish Carfinance.Web.Members.csproj -c Release -o publish -r linux-x64;31
+1567521450;Step 24/30 : FROM build AS publish;0
+1567521450;Step 25/30 : RUN dotnet publish "Carfinance.Web.Members.csproj" -c Release -o /app;20
+1567521470;Step 26/30 : FROM base AS final;0
+1567521470;Step 27/30 : WORKDIR /app;0
+1567521470;Step 28/30 : COPY --from=publish /app .;16
+1567521486;Step 29/30 : COPY --from=node /app .;15
